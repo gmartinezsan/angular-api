@@ -4,12 +4,13 @@ import { Observable, of } from 'rxjs'
 import { MessageService } from './message.service'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { catchError, map, tap } from 'rxjs/operators';
+import { ConsoleReporter } from 'jasmine'
 
 @Injectable({
   providedIn: 'root',
 })
 export class HeroService {
-  private heroesUrl = 'api/heroes';  // URL to web api
+  private heroesUrl = 'http://localhost:5000/api/heroes';  // URL to web api
   httpOptions = {
     headers: new HttpHeaders({ 'Content-Type': 'application/json' })
   };
@@ -21,6 +22,7 @@ export class HeroService {
   /** GET heroes from the server */
   /** GET heroes from the server */
 getHeroes (): Observable<Hero[]> {
+  console.log(this.heroesUrl);
   return this.http.get<Hero[]>(this.heroesUrl)
     .pipe(
       tap(_ => this.log('fetched heroes')),
@@ -64,6 +66,10 @@ private handleError<T> (operation = 'operation', result?: T) {
 
 /** PUT: update the hero on the server */
 updateHero (hero: Hero): Observable<any> {
+
+  // Create the route - getting 405 Method not allowed errors
+  const url = '${this.heroesUrl}/${hero.id}';
+
   return this.http.put(this.heroesUrl, hero, this.httpOptions).pipe(
     tap(_ => this.log(`updated hero id=${hero.id}`)),
     catchError(this.handleError<any>('updateHero'))
